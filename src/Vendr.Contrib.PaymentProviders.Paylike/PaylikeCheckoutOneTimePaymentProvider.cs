@@ -1,6 +1,8 @@
 ﻿using Flurl;
 using Flurl.Http;
+using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Web;
 using System.Web.Mvc;
 using Vendr.Contrib.PaymentProviders.Paylike.Api;
@@ -37,15 +39,15 @@ namespace Vendr.Contrib.PaymentProviders.Paylike
 
             try
             {
-                var paymentLink = $"https://pos.paylike.io?key={settings.PublicKey}" +
-                                    $"&currency={currencyCode}" +
-                                    $"&amount={orderAmount}" +
-                                    $"&reference={order.OrderNumber}" +
-                                    $"&text=" +
-                                    $"&redirect={continueUrl}" +
-                                    $"&locale={settings.Locale}";
+                //var paymentLink = $"https://pos.paylike.io?key={settings.PublicKey}" +
+                //                    $"&currency={currencyCode}" +
+                //                    $"&amount={orderAmount}" +
+                //                    $"&reference={order.OrderNumber}" +
+                //                    $"&text=" +
+                //                    $"&redirect={continueUrl}" +
+                //                    $"&locale={settings.Locale}";
 
-                paymentFormLink = paymentLink;
+                //paymentFormLink = paymentLink;
             }
             catch (Exception ex)
             {
@@ -54,22 +56,60 @@ namespace Vendr.Contrib.PaymentProviders.Paylike
 
             return new PaymentFormResult()
             {
-                Form = new PaymentForm(paymentFormLink, FormMethod.Get)
+                Form = new PaymentForm(continueUrl, FormMethod.Post)
+                        .WithAttribute("onsubmit", "return handlePaylikeCheckout(event)")
+                        .WithJsFile("https://sdk.paylike.io/3.js")
+                        .WithJs(@"
+                            var paylike = Paylike('" + settings.PublicKey + @"');
+                            
+                            window.handlePaylikeCheckout = function (e) {
+                                e.preventDefault();
+
+                                paylike.popup({
+		                            currency: '" + currencyCode + @"',
+		                            amount: " + orderAmount + @",
+		                            custom: {
+			                            orderId: '" + order.OrderNumber + @"'
+		                            },
+	                            }, function(err, res) {
+		                            if (err)
+			                            return console.log(err);
+
+		                            location.href = '" + continueUrl + @"';
+	                            });
+                                
+                                return false;
+                            }
+                        ")
             };
         }
 
         public override CallbackResult ProcessCallback(OrderReadOnly order, HttpRequestBase request, PaylikeCheckoutOneTimeSettings settings)
         {
-            return new CallbackResult
+            try
             {
-                TransactionInfo = new TransactionInfo
+                var clientConfig = GetPaylikeClientConfig(settings);
+                var client = new PaylikeClient(clientConfig);
+
+                //var payment = client.FetchTransaction(order.TransactionInfo.TransactionId);
+
+                return new CallbackResult
                 {
-                    AmountAuthorized = order.TotalPrice.Value.WithTax,
-                    TransactionFee = 0m,
-                    TransactionId = Guid.NewGuid().ToString("N"),
-                    PaymentStatus = PaymentStatus.Authorized
-                }
-            };
+                    TransactionInfo = new TransactionInfo
+                    {
+                        AmountAuthorized = order.TotalPrice.Value.WithTax,
+                        TransactionFee = 0m,
+                        TransactionId = Guid.NewGuid().ToString("N"),
+                        PaymentStatus = PaymentStatus.Authorized
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                Vendr.Log.Error<PaylikeCheckoutOneTimePaymentProvider>(ex, "Paylike - ProcessCallback");
+            }
+
+            return CallbackResult.Empty;
         }
 
         public override ApiResult FetchPaymentStatus(OrderReadOnly order, PaylikeCheckoutOneTimeSettings settings)
