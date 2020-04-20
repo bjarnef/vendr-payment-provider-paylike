@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Flurl;
+using Flurl.Http;
+using System;
 using System.Web;
 using System.Web.Mvc;
 using Vendr.Contrib.PaymentProviders.Paylike.Api;
@@ -35,17 +37,20 @@ namespace Vendr.Contrib.PaymentProviders.Paylike
 
             try
             {
-                var clientConfig = GetPaylikeClientConfig(settings);
-                var client = new PaylikeClient(clientConfig);
+                var paymentLink = $"https://pos.paylike.io?key={settings.PublicKey}" +
+                                    $"&currency={currencyCode}" +
+                                    $"&amount={orderAmount}" +
+                                    $"&reference={order.OrderNumber}" +
+                                    $"&text=" +
+                                    $"&redirect={continueUrl}" +
+                                    $"&locale={settings.Locale}";
 
-                
+                paymentFormLink = paymentLink;
             }
             catch (Exception ex)
             {
                 Vendr.Log.Error<PaylikeCheckoutOneTimePaymentProvider>(ex, "Paylike - error creating payment.");
             }
-
-            //GenerateToken
 
             return new PaymentFormResult()
             {
