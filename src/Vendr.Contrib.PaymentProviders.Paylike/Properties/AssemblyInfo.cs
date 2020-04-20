@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Vendr.Contrib.PaymentProviders.Template")]
+[assembly: AssemblyTitle("Vendr.Contrib.PaymentProviders.Paylike")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Vendr.Contrib.PaymentProviders.Template")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyProduct("Vendr.Contrib.PaymentProviders.Paylike")]
+[assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
