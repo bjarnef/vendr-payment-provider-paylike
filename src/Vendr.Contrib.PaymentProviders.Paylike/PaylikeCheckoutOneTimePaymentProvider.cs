@@ -65,13 +65,17 @@ namespace Vendr.Contrib.PaymentProviders.Paylike
                             window.handlePaylikeCheckout = function (e) {
                                 e.preventDefault();
 
-                                paylike.popup({
+                                var config = 
+                                {
 		                            currency: '" + currencyCode + @"',
 		                            amount: " + orderAmount + @",
+                                    locale: '" + settings.Locale + @"',
 		                            custom: {
 			                            orderId: '" + order.OrderNumber + @"'
 		                            },
-	                            }, function(err, res) {
+	                            };
+
+                                paylike.popup(config, function(err, res) {
 		                            if (err)
 			                            return console.log(err);
 
