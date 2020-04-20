@@ -16,6 +16,33 @@ namespace Vendr.Contrib.PaymentProviders.Paylike.Api
             _config = config;
         }
 
+        public string FetchTransaction(string transactionId)
+        {
+            return Request($"/transactions/{transactionId}", (req) => req
+                .GetJsonAsync<string>());
+        }
+
+        public string VoidTransaction(string transactionId, object data)
+        {
+            return Request($"/transactions/{transactionId}/voids", (req) => req
+                .PostJsonAsync(data)
+                .ReceiveJson<string>());
+        }
+
+        public string CaptureTransaction(string transactionId, object data)
+        {
+            return Request($"/transactions/{transactionId}/captures", (req) => req
+                .PostJsonAsync(data)
+                .ReceiveJson<string>());
+        }
+
+        public string RefundTransaction(string transactionId, object data)
+        {
+            return Request($"/transactions/{transactionId}/refunds", (req) => req
+                .PostJsonAsync(data)
+                .ReceiveJson<string>());
+        }
+
         private TResult Request<TResult>(string url, Func<IFlurlRequest, Task<TResult>> func)
         {
             var result = default(TResult);

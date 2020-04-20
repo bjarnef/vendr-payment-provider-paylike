@@ -69,10 +69,14 @@ namespace Vendr.Contrib.PaymentProviders.Paylike
 
         public override ApiResult FetchPaymentStatus(OrderReadOnly order, PaylikeCheckoutOneTimeSettings settings)
         {
-            // Get payment: 
+            // Get payment: https://github.com/paylike/api-docs#fetch-a-transaction
 
             try
             {
+                var clientConfig = GetPaylikeClientConfig(settings);
+                var client = new PaylikeClient(clientConfig);
+
+                var payment = client.FetchTransaction(order.TransactionInfo.TransactionId);
 
                 //return new ApiResult()
                 //{
@@ -93,10 +97,19 @@ namespace Vendr.Contrib.PaymentProviders.Paylike
 
         public override ApiResult CancelPayment(OrderReadOnly order, PaylikeCheckoutOneTimeSettings settings)
         {
-            // Release payment: 
+            // Cancel payment: https://github.com/paylike/api-docs#void-a-transaction
 
             try
             {
+                var clientConfig = GetPaylikeClientConfig(settings);
+                var client = new PaylikeClient(clientConfig);
+
+                var data = new
+                {
+                    amount = AmountToMinorUnits(order.TransactionInfo.AmountAuthorized.Value)
+                };
+
+                var payment = client.VoidTransaction(order.TransactionInfo.TransactionId, data);
 
                 //return new ApiResult()
                 //{
@@ -117,10 +130,20 @@ namespace Vendr.Contrib.PaymentProviders.Paylike
 
         public override ApiResult CapturePayment(OrderReadOnly order, PaylikeCheckoutOneTimeSettings settings)
         {
-            // Capture payment: 
+            // Capture payment: https://github.com/paylike/api-docs#capture-a-transaction
 
             try
             {
+                var clientConfig = GetPaylikeClientConfig(settings);
+                var client = new PaylikeClient(clientConfig);
+
+                var data = new
+                {
+                    amount = AmountToMinorUnits(order.TransactionInfo.AmountAuthorized.Value)
+                };
+
+                var payment = client.CaptureTransaction(order.TransactionInfo.TransactionId, data);
+
                 //return new ApiResult()
                 //{
                 //    TransactionInfo = new TransactionInfoUpdate()
@@ -140,10 +163,19 @@ namespace Vendr.Contrib.PaymentProviders.Paylike
 
         public override ApiResult RefundPayment(OrderReadOnly order, PaylikeCheckoutOneTimeSettings settings)
         {
-            // Refund payment: 
+            // Refund payment: https://github.com/paylike/api-docs#refund-a-transaction
 
             try
             {
+                var clientConfig = GetPaylikeClientConfig(settings);
+                var client = new PaylikeClient(clientConfig);
+
+                var data = new
+                {
+                    amount = AmountToMinorUnits(order.TransactionInfo.AmountAuthorized.Value)
+                };
+
+                var payment = client.RefundTransaction(order.TransactionInfo.TransactionId, data);
 
                 //return new ApiResult()
                 //{

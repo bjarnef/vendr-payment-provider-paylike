@@ -41,7 +41,7 @@ namespace Vendr.Contrib.PaymentProviders.Paylike
         {
             return new PaylikeClientConfig
             {
-                BaseUrl = ""
+                BaseUrl = "https://api.paylike.io"
             };
         }
     }
