@@ -1,3 +1,3 @@
-# Vendr Template Payment Provider
+# Vendr Paylike Payment Provider
 
-Template Payment Provider for Vendr, the eCommerce package for Umbrao v8+
+Paylike Payment Provider for Vendr, the eCommerce package for Umbrao v8+
